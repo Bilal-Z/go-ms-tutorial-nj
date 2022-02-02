@@ -1,29 +1,57 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/Bilal-Z/go-ms-tutorial-nj/handlers"
 )
 
 func main()  {
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("Hello World!")
-		d, err := ioutil.ReadAll(r.Body)
+	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 
+	hh := handlers.NewHello(l)
+	gh := handlers.NewGoodbye(l)
+
+	sm := http.NewServeMux()
+	sm.Handle("/", hh)
+	sm.Handle("/goodbye", gh)
+
+	s := &http.Server{
+		Addr: "127.0.0.1:5000",
+		Handler: sm,
+		IdleTimeout: 120 * time.Second,
+		ReadTimeout: 1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	// create child routine with annonymous function/function literal
+	go func(){
+		l.Println("server starting on port 500")
+		err := s.ListenAndServe()
 		if err != nil {
-			http.Error(rw, "something went wrong", http.StatusBadRequest) // equivalent to the two lines below
-			// rw.WriteHeader(http.StatusBadRequest)
-			// rw.Write([]byte("something went wrong"))
-			return
+			l.Fatal(err)
 		}
+	}()
 
-		fmt.Fprintf(rw, "Hello %s", d)
-	})
-	http.HandleFunc("/goodbye", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("Goodbye World")
-	})
+	// create channel
+	sigChan := make(chan os.Signal, 2)
+	// relay interupt and kill signals to channel
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
-	http.ListenAndServe("127.0.0.1:5000", nil)
+	// await signal
+	sig := <- sigChan
+	l.Println("recieved terminate, graceful shutdown", sig)
+
+	// timeout context
+	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+
+	defer cancel()
+
+	s.Shutdown(tc)
 }
