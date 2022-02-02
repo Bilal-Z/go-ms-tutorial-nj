@@ -9,18 +9,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Bilal-Z/go-ms-tutorial-nj/handlers"
+	"github.com/Bilal-Z/go-ms-tutorial-nj/product-api/handlers"
 )
 
 func main()  {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 
-	hh := handlers.NewHello(l)
-	gh := handlers.NewGoodbye(l)
+	ph := handlers.NewProduct(l)
 
 	sm := http.NewServeMux()
-	sm.Handle("/", hh)
-	sm.Handle("/goodbye", gh)
+	sm.Handle("/", ph)
 
 	s := &http.Server{
 		Addr: "127.0.0.1:5000",
@@ -32,7 +30,7 @@ func main()  {
 
 	// create child routine with annonymous function/function literal
 	go func(){
-		l.Println("server starting on port 500")
+		l.Println("server starting on port 5000")
 		err := s.ListenAndServe()
 		if err != nil {
 			l.Fatal(err)
