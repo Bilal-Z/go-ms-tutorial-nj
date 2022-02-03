@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Bilal-Z/go-ms-tutorial-nj/product-api/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main()  {
@@ -17,12 +18,19 @@ func main()  {
 
 	ph := handlers.NewProduct(l)
 
-	sm := http.NewServeMux()
-	sm.Handle("/", ph)
+	r := mux.NewRouter()
+	productsRouter := r.PathPrefix("/products").Subrouter()
+	
+	productsRouter.HandleFunc("/", ph.GetProducts).Methods(http.MethodGet)
+	productsRouter.HandleFunc("", ph.GetProducts).Methods(http.MethodGet)
+
+	productsRouter.Handle("/", ph.MiddlewareProductValidation(http.HandlerFunc(ph.AddProduct))).Methods(http.MethodPost)
+	productsRouter.Handle("", ph.MiddlewareProductValidation(http.HandlerFunc(ph.AddProduct))).Methods(http.MethodPost)
+	productsRouter.Handle("/{id:[0-9]+}", ph.MiddlewareProductValidation(http.HandlerFunc(ph.UpdateProduct))).Methods(http.MethodPut)
 
 	s := &http.Server{
 		Addr: "127.0.0.1:5000",
-		Handler: sm,
+		Handler: r,
 		IdleTimeout: 120 * time.Second,
 		ReadTimeout: 1 * time.Second,
 		WriteTimeout: 1 * time.Second,
