@@ -7,7 +7,9 @@ Content-Type: application/json
 
 {
 	"name": "tea",
-	"description": "a nice cup of tea"
+	"price": 1,
+	"description": "a nice cup of tea",
+	"sku": "a-a-a"
 }
 
 ### Update product
