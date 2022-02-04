@@ -10,23 +10,26 @@ import (
 	"time"
 
 	"github.com/Bilal-Z/go-ms-tutorial-nj/product-api/handlers"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
 
 func main()  {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 
-	ph := handlers.NewProduct(l)
-
 	r := mux.NewRouter()
-	productsRouter := r.PathPrefix("/products").Subrouter()
-	
-	productsRouter.HandleFunc("/", ph.GetProducts).Methods(http.MethodGet)
-	productsRouter.HandleFunc("", ph.GetProducts).Methods(http.MethodGet)
+	handlers.MakeRouter(
+		r.PathPrefix("/products").Subrouter(),
+		l,
+	)
 
-	productsRouter.Handle("/", ph.MiddlewareProductValidation(http.HandlerFunc(ph.AddProduct))).Methods(http.MethodPost)
-	productsRouter.Handle("", ph.MiddlewareProductValidation(http.HandlerFunc(ph.AddProduct))).Methods(http.MethodPost)
-	productsRouter.Handle("/{id:[0-9]+}", ph.MiddlewareProductValidation(http.HandlerFunc(ph.UpdateProduct))).Methods(http.MethodPut)
+	// doc handler
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+
+	docsRouter := r.Methods(http.MethodGet).Subrouter()
+	docsRouter.Handle("/docs", sh)
+	docsRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	s := &http.Server{
 		Addr: "127.0.0.1:5000",
