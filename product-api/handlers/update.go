@@ -26,6 +26,8 @@ func (p *Products) UpdateProduct(rw http.ResponseWriter, r *http.Request){
 	
 	p.l.Println("PUT")
 
+	rw.Header().Add("Content-Type","application/json")
+
 	prod := r.Context().Value(KeyProduct{}).(data.Product)
 	
 	err = data.UpdateProduct(id, &prod)

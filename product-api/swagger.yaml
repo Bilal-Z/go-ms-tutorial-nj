@@ -3,30 +3,36 @@ consumes:
 - application/json
 definitions:
   CustomError:
+    description: CustomError custom error
     properties:
       errors:
+        description: errors
         items:
           $ref: '#/definitions/ErrorFeild'
         type: array
         x-go-name: Errors
       statusCode:
+        description: status code
         format: int64
         type: integer
         x-go-name: StatusCode
     type: object
-    x-go-package: github.com/Bilal-Z/go-ms-tutorial-nj/product-api/utils
+    x-go-package: github.com/Bilal-Z/go-ms-tutorial-nj/product-api/sdk/models
   ErrorFeild:
+    description: ErrorFeild error feild
     properties:
       feild:
+        description: feild
         type: string
         x-go-name: Feild
       message:
+        description: message
         type: string
         x-go-name: Message
     type: object
-    x-go-package: github.com/Bilal-Z/go-ms-tutorial-nj/product-api/utils
+    x-go-package: github.com/Bilal-Z/go-ms-tutorial-nj/product-api/sdk/models
   Product:
-    description: Product defines the structure for an API product
+    description: Product Product defines the structure for an API product
     properties:
       description:
         description: the description for this poduct
@@ -60,7 +66,7 @@ definitions:
     - price
     - sku
     type: object
-    x-go-package: github.com/Bilal-Z/go-ms-tutorial-nj/product-api/data
+    x-go-package: github.com/Bilal-Z/go-ms-tutorial-nj/product-api/sdk/models
 info:
   description: Documentation for Product API
   title: Product API

@@ -15,6 +15,8 @@ import (
 func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request){
 	p.l.Println("GET")
 
+	rw.Header().Add("Content-Type","application/json")
+
 	// list of products
 	lp := data.GetProducts()
 	err := lp.ToJSON(rw)

@@ -16,6 +16,9 @@ import (
 //  500: errorResponse
 func (p *Products) AddProduct(rw http.ResponseWriter, r *http.Request){
 	p.l.Println("POST")
+
+	rw.Header().Add("Content-Type","application/json")
+
 	prod := r.Context().Value(KeyProduct{}).(data.Product)
 	data.AddProduct(&prod)
 
